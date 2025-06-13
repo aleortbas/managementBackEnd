@@ -1,5 +1,5 @@
 import express from 'express';
-import DbTransactions from "../services/dbTransactions";
+import userServices from "../services/userServices";
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
@@ -11,7 +11,7 @@ const router = express.Router();
 router.post('/login', async (req, res) => {
     const { email, password } = req.body;
     try {
-      const user = await DbTransactions.getUser(email); // Make sure this is async and returns user from DB
+      const user = await userServices.getUser(email);
   
       if (!user) {
         return res.status(401).json({ message: "Invalid credentials" });
@@ -40,18 +40,21 @@ router.post('/register', async (req, res) => {
     const { email, username, password } = req.body;
 
     try {
-        const insertedUser = await DbTransactions.createUser(email, username, password);
+        const insertedUser = await userServices.createUser(email, username, password);
+
         const token = jwt.sign(
             { userId: insertedUser.id, email: insertedUser.email },
             process.env.JWT_SECRET as string,
             { expiresIn: '1h' }
         );
-        res.status(201).json({ token });
+
+        res.status(201).json({ message: "Successfully Register" , token });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Register failed" });
     }
 })
+
 
 
 export default router;

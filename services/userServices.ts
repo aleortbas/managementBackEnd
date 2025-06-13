@@ -2,7 +2,7 @@ import pool from '../dbConnection';
 import dotenv from 'dotenv';
 dotenv.config();
 
-class DbTransactions {
+class userServices {
     async getUser(email: string) {
         const query = 'SELECT * FROM users where username = $1';
         const values = [email]
@@ -20,4 +20,4 @@ class DbTransactions {
     }
 }
 
-export default new DbTransactions();
+export default new userServices();
