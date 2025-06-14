@@ -57,7 +57,7 @@ router.post('/', async (req, res) => {
         res.status(200).json({ message: "Product successfully updated", product: updates });
     })
 
-    router.delete('/deleteProduct/:id', async (req, res) => {
+    router.delete('/:id', async (req, res) => {
         const id = req.params.id;
         console.log(`Deleting product with ID: ${id}`  );
         
