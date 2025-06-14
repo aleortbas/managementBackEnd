@@ -46,6 +46,8 @@ router.get('/', async (req, res) => {
 
     router.delete('/deleteProduct/:id', async (req, res) => {
         const id = req.params.id;
+        console.log(`Deleting product with ID: ${id}`  );
+        
         try {
             const deletedProduct = await productServices.deleteProduct(parseInt(id));
             if (deletedProduct) {

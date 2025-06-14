@@ -9,25 +9,50 @@ class productsServices {
         const query = 'SELECT * FROM products';
         
         const pool = await poolPromise;
-        const result = await pool.query(query);
+        const result = await pool.request()
+            .query(query);
 
         console.log(`Products fetched: ${JSON.stringify(result.rows)}`); // Log the result for debugging
-        return result.rows;
+        return result.recordset;
     }
 
-    /* async createProduct(name: string, description: string, price: number, category_id: number) {
-        const queryCategory = 'SELECT * FROM categories WHERE id = $1';
-        const categoryResult = await pool.query(queryCategory, [category_id]);
-        if (categoryResult.rows.length === 0) {
+    async createProduct(name: string, description: string, price: number, category_id: number) {
+        const queryCategory = 'select * from categories where id = @category_id';
+        const pool = await poolPromise;
+
+        const categoryResult = await pool.request()
+            .input('category_id', sql.Int, category_id)
+            .query(queryCategory);
+        
+        if (categoryResult.recordset.length === 0) {
             throw new Error(`Category with id ${category_id} does not exist`);
         }
 
-        const query = 'INSERT INTO public.products ("name", description, price, category_id, created_at, updated_at) VALUES($1, $2, $3, $4, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);';
-        const values = [name, description, price, category_id];
-        const result = await pool.query(query, values);
+        const query = `INSERT INTO [dbo].[products]
+           ([name]
+           ,[description]
+           ,[price]
+           ,[category_id]
+           ,[created_at]
+           ,[updated_at])
+           OUTPUT INSERTED.*
+VALUES (@name
+           ,@description
+           ,@price
+           ,@category_id
+           ,GETDATE()
+           ,GETDATE())`
+
+        const result = await pool.request()
+            .input('name', sql.VarChar, name)
+            .input('description', sql.VarChar, description)
+            .input('price', sql.Decimal, price)
+            .input('category_id', sql.Int, category_id)
+            .query(query);
+
         console.log(`Product created: ${JSON.stringify(result)}`); // Log the result for debugging
-        return result.rows[0];
-    }
+        return result.recordset[0];
+    } 
 
     async updateProduct(id: number, updates: {
         name?: string;
@@ -35,13 +60,16 @@ class productsServices {
         price?: number;
         category_id?: number;
     }) {
-        const queryProducts = 'select * from products where id = $1';
-        const currentResult = await pool.query(queryProducts, [id]);
+        const queryProducts = 'select * from products where id = @id';
+        const pool = await poolPromise;
+        const currentResult = await pool.request()
+            .input('id', sql.Int, id)
+            .query(queryProducts);
 
-        if (currentResult.rows.length === 0) {
+        if (currentResult.recordset.length === 0) {
             throw new Error(`Product with ID ${id} does not exist`);
         }
-        const current = currentResult.rows[0];
+        const current = currentResult.recordset[0];
 
         const finalName = updates.name ?? current.name;
         const finalDesc = updates.description ?? current.description;
@@ -50,27 +78,36 @@ class productsServices {
 
         const query = `
         UPDATE products
-        SET name = $1, description = $2, price = $3, category_id = $4, updated_at = CURRENT_TIMESTAMP
-        WHERE id = $5
-        RETURNING *;
+        SET name = @name, description = @description, price = @price, category_id = @category_id, updated_at = GETDATE()
+        OUTPUT INSERTED.*
+        WHERE id = @id;
         `;
 
-        const values = [finalName, finalDesc, finalPrice, finalCategory, id];
-        const result = await pool.query(query, values);
-        return result.rows[0];
-    }
+        const result = await pool.request()
+            .input('id', sql.Int, id)
+            .input('name', sql.VarChar, finalName)
+            .input('description', sql.VarChar, finalDesc)
+            .input('price', sql.Decimal, finalPrice)
+            .input('category_id', sql.Int, finalCategory)
+            .query(query);
+            
+        return result.recordset[0];
+    } 
 
     async deleteProduct(id: number) {
-        const query = 'DELETE FROM products WHERE id = $1 RETURNING *';
-        const result = await pool.query(query, [id]);
+        const query = 'DELETE FROM products OUTPUT DELETED.* WHERE id = @id';
+        const pool = await poolPromise;
+        const result = await pool.request()
+            .input('id', sql.Int, id)
+            .query(query);
         
-        if (result.rows.length === 0) {
+        if (result.recordset.length === 0) {
             throw new Error(`Product with ID ${id} does not exist`);
         }
 
-        console.log(`Product deleted: ${JSON.stringify(result.rows[0])}`); // Log the deleted product for debugging
-        return result.rows[0];
-    } */
+        console.log(`Product deleted: ${JSON.stringify(result.recordset[0])}`); // Log the deleted product for debugging
+        return result.recordset[0];
+    } 
 }
 
 export default new productsServices();
