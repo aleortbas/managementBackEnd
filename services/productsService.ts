@@ -16,6 +16,18 @@ class productsServices {
         return result.recordset;
     }
 
+    async getProductsById(id: number) {
+        const query = 'SELECT * FROM products WHERE id = @id';
+        
+        const pool = await poolPromise;
+        const result = await pool.request()
+            .input('id', sql.Int, id)
+            .query(query);
+
+        console.log(`Product fetched: ${JSON.stringify(result.recordset[0])}`); // Log the result for debugging
+        return result.recordset[0];
+    }
+
     async createProduct(name: string, description: string, price: number, category_id: number) {
         const queryCategory = 'select * from categories where id = @category_id';
         const pool = await poolPromise;

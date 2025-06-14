@@ -12,7 +12,19 @@ class categoriesServices {
         const result = await pool.request()
             .query(query);
 
-        console.log(`Products fetched: ${JSON.stringify(result.recordset)}`); // Log the result for debugging
+        console.log(`Category fetched: ${JSON.stringify(result.recordset)}`); 
+        return result.recordset;
+    }
+
+        async getCategoriesById(id: number) {
+        const query = 'SELECT * FROM categories where id = @id';
+        
+        const pool = await poolPromise;
+        const result = await pool.request()
+            .input('id', sql.Int, id)
+            .query(query);
+
+        console.log(`Category fetched: ${JSON.stringify(result.recordset)}`); 
         return result.recordset;
     }
 

@@ -16,7 +16,20 @@ router.get('/', async (req, res) => {
     }
 })
 
-    router.post('/registerProduct', async (req, res) => {
+router.get('/:id', async (req, res) => {
+    const id = req.params.id;
+    console.log(`Fetching product with ID: ${id}`);
+    
+    try {
+        const products = await productServices.getProductsById(id);
+        res.json(products);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Failed to fetch products" });
+    }
+})
+
+router.post('/', async (req, res) => {
         const { name, description, price, category_id } = req.body;
         
         try {
@@ -32,7 +45,7 @@ router.get('/', async (req, res) => {
         }
     })
 
-    router.post('/updateProduct', async (req, res) => {
+    router.put('/', async (req, res) => {
         const { id, name, description, price, category_id } = req.body 
         console.log(`Updating product with ID: ${id}, Name: ${name}, Description: ${description}, Price: ${price}, Category ID: ${category_id}`);
         const updates = await productServices.updateProduct(id, {
