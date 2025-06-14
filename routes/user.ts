@@ -2,13 +2,18 @@ import express from 'express';
 import userServices from "../services/userServices";
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import multer from 'multer';
+import fs from 'fs';
+import csv from 'csv-parser';
 
 import dotenv from 'dotenv';
 dotenv.config();
 
 const router = express.Router();
 
-router.post('/login', async (req, res) => {
+const upload = multer({ dest: 'uploads/' });
+
+router.post('/', async (req, res) => {
     const { email, password } = req.body;
     const passwordhash = await bcrypt.hash(password, 10);
     console.log(`Email: ${email}, Password Hash: ${passwordhash}`); // Log for debugging
@@ -38,23 +43,52 @@ router.post('/login', async (req, res) => {
     }
   });
 
-router.post('/register', async (req, res) => {
-    const { email, username, password } = req.body;
+router.post('/upload', upload.single('file'),async (req, res) => {
+  const file = req.file;
+  
+  if (!file) {
+    return res.status(400).json({ message: "No file uploaded" });
+  }
 
-    try {
-        const insertedUser = await userServices.createUser(email, username, password);
+  const results: any[] = [];
 
-        const token = jwt.sign(
-            { userId: insertedUser.id, email: insertedUser.email },
-            process.env.JWT_SECRET as string,
-            { expiresIn: '1h' }
-        );
+  try {
+    fs.createReadStream(file.path)
+      .pipe(csv())
+      .on('data', (row) => {
+        results.push(row);
+      })
+      .on('end', async () => {
+        const successes: any[] = [];
+        const errors: any[] = [];
 
-        res.status(201).json({ message: "Successfully Register" , token });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Register failed" });
-    }
+        for (const row of results) {
+          const { email, username, password } = row;
+
+          console.log(`Processing user: ${email}, Username: ${username}`); // Log for debugging
+          
+
+          try {
+            const user = await userServices.createUser(email, username, password);
+            successes.push({ email, id: user.id });
+          } catch (err) {
+            errors.push({ email, error: err.message });
+          }
+        }
+
+        fs.unlinkSync(file.path); 
+
+        res.status(201).json({
+          message: 'CSV processing completed.',
+          successes,
+          errors,
+        });
+      });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error processing CSV file.' });
+  }
+
 })
 
 
