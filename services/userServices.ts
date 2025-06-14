@@ -1,22 +1,30 @@
-import pool from '../dbConnection';
+import poolPromise from '../dbConnection';
+import sql from 'mssql';
+
 import dotenv from 'dotenv';
 dotenv.config();
 
 class userServices {
     async getUser(email: string) {
-        const query = 'SELECT * FROM users where username = $1';
-        const values = [email]
-        const result = await pool.query(query,values);
-        console.log(`result: ${JSON.stringify(result.rows)}`); // Log the result for debugging
-        return result.rows[0];
+        const query = 'SELECT * FROM users where username = @username';
+        const pool = await poolPromise;
+        const result = await pool.request()
+            .input('username', sql.VarChar, email)
+            .query(query);
+        console.log(`result: ${JSON.stringify(result.recordset)}`); // Log the result for debugging
+        return result.recordset[0];
     }
 
     async createUser(email: string, username: string, password: string) {
-        const query = "INSERT INTO public.users (username, email, password, created_at, updated_at) VALUES($1, $2, $3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP) returning username, email, password;"
-        const values = [username, email, password];
-        const result = await pool.query(query, values);
+        const query = "INSERT INTO users (username, email, password, created_at, updated_at) OUTPUT INSERTED.* VALUES(@username, @email, @password, GETDATE(), GETDATE())"
+        const pool = await poolPromise;
+        const result = await pool.request()
+            .input('username', sql.VarChar, username)
+            .input('email', sql.VarChar, email)
+            .input('password', sql.VarChar, password)
+            .query(query);
         console.log(`User created: ${JSON.stringify(result)}`); // Log the result for debugging
-        return result.rows[0];
+        return result.recordset[0];
     }
 }
 

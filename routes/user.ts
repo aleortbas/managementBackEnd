@@ -10,6 +10,8 @@ const router = express.Router();
 
 router.post('/login', async (req, res) => {
     const { email, password } = req.body;
+    const passwordhash = await bcrypt.hash(password, 10);
+    console.log(`Email: ${email}, Password Hash: ${passwordhash}`); // Log for debugging
     try {
       const user = await userServices.getUser(email);
   
