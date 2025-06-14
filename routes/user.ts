@@ -13,7 +13,7 @@ const router = express.Router();
 
 const upload = multer({ dest: 'uploads/' });
 
-router.post('/', async (req, res) => {
+/* router.post('/', async (req, res) => {
     const { email, password } = req.body;
     const passwordhash = await bcrypt.hash(password, 10);
     console.log(`Email: ${email}, Password Hash: ${passwordhash}`); // Log for debugging
@@ -41,7 +41,32 @@ router.post('/', async (req, res) => {
       console.error(error);
       res.status(500).json({ message: "Login failed" });
     }
-  });
+  }); */
+
+router.post('/', async (req, res) => {
+  const { email, username, password } = req.body;
+  console.log(`Email: ${email}, Username: ${username}`); // Log for debugging
+  try {
+    const user = await userServices.getUser(username);
+
+    if (user) {
+      return res.status(400).json({ message: "User already exists" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = await userServices.createUser(email, username, hashedPassword);
+
+    const token = jwt.sign(
+      { userId: newUser.id, email: newUser.email },
+      process.env.JWT_SECRET as string,
+      { expiresIn: '1h' }
+    );
+
+    res.status(201).json({ token });
+  } catch (error) {
+    
+  }
+})
 
 router.post('/upload', upload.single('file'),async (req, res) => {
   const file = req.file;
