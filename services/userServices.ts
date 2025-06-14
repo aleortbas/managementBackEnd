@@ -7,7 +7,7 @@ dotenv.config();
 
 class userServices {
     async getUser(email: string) {
-        const query = 'SELECT * FROM users where username = @username';
+        const query = 'SELECT * FROM users where username = @username OR email = @username';
         const pool = await poolPromise;
         const result = await pool.request()
             .input('username', sql.VarChar, email)

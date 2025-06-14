@@ -15,7 +15,7 @@ const upload = multer({ dest: 'uploads/' });
 
 router.post('/', async (req, res) => {
   const { email, username, password } = req.body;
-  console.log(`Email: ${email}, Username: ${username}`); // Log for debugging
+  console.log(`Email: ${email}, Username: ${username}`);
   try {
     const user = await userServices.getUser(username);
 
@@ -91,6 +91,8 @@ router.post('/login', async (req, res) => {
     console.log(`Email: ${email}, Password Hash: ${passwordhash}`); // Log for debugging
     try {
       const user = await userServices.getUser(email);
+
+      console.log(`User found: ${JSON.stringify(user)}`); // Log user details for debugging
   
       if (!user) {
         return res.status(401).json({ message: "Invalid credentials" });
