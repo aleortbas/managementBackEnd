@@ -18,7 +18,6 @@ router.get('/', async (req, res) => {
 
 router.get('/:id', async (req, res) => {
     const id = req.params.id;
-    console.log(`Fetching product with ID: ${id}`);
     
     try {
         const products = await productServices.getProductsById(id);
@@ -47,7 +46,6 @@ router.post('/', async (req, res) => {
 
     router.put('/', async (req, res) => {
         const { id, name, description, price, category_id } = req.body 
-        console.log(`Updating product with ID: ${id}, Name: ${name}, Description: ${description}, Price: ${price}, Category ID: ${category_id}`);
         const updates = await productServices.updateProduct(id, {
             name,
             description,
@@ -59,7 +57,6 @@ router.post('/', async (req, res) => {
 
     router.delete('/:id', async (req, res) => {
         const id = req.params.id;
-        console.log(`Deleting product with ID: ${id}`  );
         
         try {
             const deletedProduct = await productServices.deleteProduct(parseInt(id));

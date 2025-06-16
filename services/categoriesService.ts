@@ -12,7 +12,6 @@ class categoriesServices {
         const result = await pool.request()
             .query(query);
 
-        console.log(`Category fetched: ${JSON.stringify(result.recordset)}`); 
         return result.recordset;
     }
 
@@ -45,7 +44,6 @@ class categoriesServices {
             .input('name', sql.VarChar, name)
             .query(query);
 
-        console.log(`Category created: ${JSON.stringify(result)}`); // Log the result for debugging
         return result.recordset[0];
     } 
 
@@ -91,7 +89,6 @@ class categoriesServices {
             throw new Error(`Category with ID ${id} does not exist`);
         }
 
-        console.log(`Category deleted: ${JSON.stringify(result.recordset[0])}`); // Log the deleted product for debugging
         return result.recordset[0];
     } 
 }

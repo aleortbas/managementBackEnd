@@ -15,7 +15,6 @@ const upload = multer({ dest: 'uploads/' });
 
 router.post('/', async (req, res) => {
   const { email, username, password } = req.body;
-  console.log(`Email: ${email}, Username: ${username}`);
   try {
     const user = await userServices.getUser(username);
 
@@ -59,10 +58,6 @@ router.post('/upload', upload.single('file'),async (req, res) => {
 
         for (const row of results) {
           const { email, username, password } = row;
-
-          console.log(`Processing user: ${email}, Username: ${username}`); // Log for debugging
-          
-
           try {
             const user = await userServices.createUser(email, username, password);
             successes.push({ email, id: user.id });
@@ -88,11 +83,8 @@ router.post('/upload', upload.single('file'),async (req, res) => {
 router.post('/login', async (req, res) => {
     const { email, password } = req.body;
     const passwordhash = await bcrypt.hash(password, 10);
-    console.log(`Email: ${email}, Password Hash: ${passwordhash}`); // Log for debugging
     try {
       const user = await userServices.getUser(email);
-
-      console.log(`User found: ${JSON.stringify(user)}`); // Log user details for debugging
   
       if (!user) {
         return res.status(401).json({ message: "Invalid credentials" });

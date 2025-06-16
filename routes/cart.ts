@@ -18,7 +18,6 @@ router.get('/', async (req, res) => {
 
    router.post('/', async (req, res) => {
         const { product_id, quantity } = req.body;
-        console.log(`Inserting product with ID: ${product_id}, Quantity: ${quantity}`); // Log for debugging
         try {
             const insertedCategory = await cartServices.addToCart(product_id, quantity);
             res.status(201).json({ message: "Cart successfully created", category: insertedCategory });

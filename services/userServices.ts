@@ -12,12 +12,10 @@ class userServices {
         const result = await pool.request()
             .input('username', sql.VarChar, email)
             .query(query);
-        console.log(`result: ${JSON.stringify(result.recordset)}`); // Log the result for debugging
         return result.recordset[0];
     }
 
     async createUser(email: string, username: string, password: string) {
-        console.log(`Creating user with email: ${email}, username: ${username}`); // Log input parameters
 
         // Hash the password before storing it
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -29,7 +27,6 @@ class userServices {
             .input('email', sql.VarChar, email)
             .input('password', sql.VarChar, hashedPassword)
             .query(query);
-        console.log(`User created: ${JSON.stringify(result)}`); // Log the result for debugging
         return result.recordset[0];
     }
 }

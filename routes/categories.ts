@@ -29,7 +29,6 @@ router.get('/:id', async (req, res) => {
 
    router.post('/', async (req, res) => {
         const { name } = req.body;
-        console.log(`Inserting category with Name: ${name}`); // Log for debugging
         
         try {
             const insertedCategory = await categoriesService.createCategories(name);
@@ -47,7 +46,6 @@ router.get('/:id', async (req, res) => {
     router.put('/:id', async (req, res) => {
         const id = parseInt(req.params.id);
         const { name } = req.body 
-        console.log(`Updating Category with ID: ${id}, Name: ${name}`);
         const updates = await categoriesService.updateCategory(id, {
             name
         })
@@ -56,7 +54,6 @@ router.get('/:id', async (req, res) => {
 
     router.delete('/:id', async (req, res) => {
         const id = req.params.id;
-        console.log(`Deleting Category with ID: ${id}`  );
         
         try {
             const deletedCategory = await categoriesService.deleteCategory(parseInt(id));

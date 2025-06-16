@@ -12,7 +12,6 @@ class productsServices {
         const result = await pool.request()
             .query(query);
 
-        console.log(`Products fetched: ${JSON.stringify(result.rows)}`); // Log the result for debugging
         return result.recordset;
     }
 
@@ -24,7 +23,6 @@ class productsServices {
             .input('id', sql.Int, id)
             .query(query);
 
-        console.log(`Product fetched: ${JSON.stringify(result.recordset[0])}`); // Log the result for debugging
         return result.recordset[0];
     }
 
@@ -62,7 +60,6 @@ VALUES (@name
             .input('category_id', sql.Int, category_id)
             .query(query);
 
-        console.log(`Product created: ${JSON.stringify(result)}`); // Log the result for debugging
         return result.recordset[0];
     } 
 
@@ -117,7 +114,6 @@ VALUES (@name
             throw new Error(`Product with ID ${id} does not exist`);
         }
 
-        console.log(`Product deleted: ${JSON.stringify(result.recordset[0])}`); // Log the deleted product for debugging
         return result.recordset[0];
     } 
 }

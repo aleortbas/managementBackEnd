@@ -25,7 +25,6 @@ class cartServices {
             return [];
         }
 
-        console.log(`cart fetched: ${JSON.stringify(result.recordset)}`);
         return result.recordset;
     }
 
@@ -45,7 +44,6 @@ class cartServices {
             .input('quantity', sql.Int, quantity)
             .query(query);
 
-        console.log(`Category created: ${JSON.stringify(result)}`); // Log the result for debugging
         return result.recordset[0];
     }
 
