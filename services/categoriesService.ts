@@ -25,7 +25,7 @@ class categoriesServices {
             .query(query);
 
         console.log(`Category fetched: ${JSON.stringify(result.recordset)}`); 
-        return result.recordset;
+        return result.recordset[0];
     }
 
     async createCategories(name: string) {
@@ -51,7 +51,7 @@ class categoriesServices {
 
     async updateCategory(id: number, updates: {
         name?: string;
-    }) {
+    }) {;
         const queryProducts = 'select * from categories where id = @id';
         const pool = await poolPromise;
         const currentResult = await pool.request()
